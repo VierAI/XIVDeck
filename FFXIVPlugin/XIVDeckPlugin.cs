@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using XIVDeck.FFXIVPlugin.ActionExecutor;
@@ -30,6 +30,10 @@ public sealed class XIVDeckPlugin : IDalamudPlugin {
 
     private IDalamudPluginInterface PluginInterface { get; }
     private readonly HotbarWatcher _hotbarWatcher;
+    private readonly IconModWatcher _iconModWatcher;
+    private readonly EditableActionWatcher _editableActionWatcher;
+    internal DeckProfileScanner ProfileScanner { get; }
+    internal HotbarWatcher HotbarWatcher => this._hotbarWatcher;
     private readonly ChatLinkWiring _chatLinkWiring;
     private readonly IPCManager _ipcManager;
 
@@ -38,7 +42,8 @@ public sealed class XIVDeckPlugin : IDalamudPlugin {
 
         Instance = this;
         this.PluginInterface = pluginInterface;
-
+        // On first start, import the official XIVDeck settings.
+        VierAIfiedMigration.ImportOfficialSettings(pluginInterface, msg => Injections.PluginLog.Information(msg));
         this.Configuration = this.PluginInterface.GetPluginConfig() as PluginConfig ?? new PluginConfig();
 
         // DI and services are boring.
@@ -48,9 +53,12 @@ public sealed class XIVDeckPlugin : IDalamudPlugin {
         this._ipcManager = new IPCManager();
         this._chatLinkWiring = new ChatLinkWiring();
         this._hotbarWatcher = new HotbarWatcher();
+        this._iconModWatcher = new IconModWatcher();
+        this._editableActionWatcher = new EditableActionWatcher();
         this.VolumeWatcher = new VolumeWatcher();
         this.WindowSystem = new WindowSystem(this.Name);
         this.Server = new XIVDeckWebServer(this);
+        this.ProfileScanner = new DeckProfileScanner();
 
         this.InitializeWebServer();
 
@@ -69,8 +77,11 @@ public sealed class XIVDeckPlugin : IDalamudPlugin {
         DeferredChat.Cancel();
 
         this._hotbarWatcher.Dispose();
+        this._iconModWatcher.Dispose();
+        this._editableActionWatcher.Dispose();
         this.VolumeWatcher.Dispose();
 
+        this.ProfileScanner.Dispose();
         this.Server.Dispose();
         this._chatLinkWiring.Dispose();
         this.GameHooks.Dispose();

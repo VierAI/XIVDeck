@@ -25,9 +25,19 @@ export type StateMessage = {
     params?: unknown
 }
 
-export type HotbarUpdateMessage = { 
+export type HotbarUpdateMessage = {
     type: "Hotbar",
-    params?: Array<{hotbarId: number, slotId: number}>
+    params?: Array<{hotbarId: number, slotId: number, iconId?: number}>
+}
+
+export type ActionIconMessage = {
+    type: "ActionIcon",
+    params?: Array<{type: string, id: number, iconId: number, name?: string}>
+}
+
+export type IconPushMessage = {
+    iconId: number,
+    dataUrl: string
 }
 
 export type VolumePayload = {
@@ -46,7 +56,8 @@ export type VolumeMessage = {
 
 export type FFXIVInitReply = {
     version: string,
-    apiKey: string
+    apiKey: string,
+    pushCache?: boolean
 }
 
 export type FFXIVHotbarSlot = {

@@ -12,8 +12,14 @@ public class WSInitReplyMessage : BaseOutboundMessage {
     [JsonProperty("version")] public string Version { get; set; }
     [JsonProperty("apiKey")] public string? ApiKey { get; set; }
 
-    public WSInitReplyMessage(string version, string? apiKey = null) : base(MessageName) {
+    /// <summary>
+    /// True when this game plugin pushes hotbar slots and icon PNGs. Older Stream Deck builds ignore it.
+    /// </summary>
+    [JsonProperty("pushCache")] public bool PushCache { get; set; }
+
+    public WSInitReplyMessage(string version, string? apiKey = null, bool pushCache = false) : base(MessageName) {
         this.Version = version;
         this.ApiKey = apiKey;
+        this.PushCache = pushCache;
     }
 }

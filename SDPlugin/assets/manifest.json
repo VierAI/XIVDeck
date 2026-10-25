@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "Actions": [
     {
@@ -102,8 +102,8 @@
   "Author": "KazWolfe",
   "CodePath": "plugin.html",
   "PropertyInspectorPath": "propertyInspector.html",
-  "Description": "Integrate with Final Fantasy XIV for a mogtastic experience in-game!",
-  "Name": "XIVDeck",
+  "Description": "Integrate with Final Fantasy XIV for a mogtastic experience in-game! VierAI-fied fork. AI generated code.",
+  "Name": "XIVDeck (VierAI-fied)",
   "Icon": "assets/images/icon",
   "URL": "https://wolf.dev/",
   "Version": "1.0.0.0",

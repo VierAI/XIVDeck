@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -13,6 +13,7 @@ using XIVDeck.FFXIVPlugin.Game.Chat;
 using XIVDeck.FFXIVPlugin.Resources.Localization;
 using XIVDeck.FFXIVPlugin.Server.Helpers;
 using XIVDeck.FFXIVPlugin.Server.Messages;
+using XIVDeck.FFXIVPlugin.Server.Types;
 using XIVDeck.FFXIVPlugin.UI.Windows.Nags;
 using XIVDeck.FFXIVPlugin.Utils;
 
@@ -96,6 +97,54 @@ public class XIVDeckWebServer : IXIVDeckServer {
 
     public void BroadcastMessage(BaseOutboundMessage message) {
         this._wsServer?.BroadcastMessage(message);
+    }
+
+    public void NoteMode(string contextId, bool wantsPush) {
+        this._wsServer?.NoteMode(contextId, wantsPush);
+    }
+
+    public void RememberActions(string contextId, IReadOnlyList<(string Type, int Id)> actions) {
+        this._wsServer?.RememberActions(contextId, actions);
+    }
+
+    public void BroadcastHotbar(IReadOnlyList<MicroHotbarSlot> slots) {
+        this._wsServer?.BroadcastHotbar(slots);
+    }
+
+    public void SendHotbar(string contextId, IReadOnlyList<MicroHotbarSlot> slots) {
+        this._wsServer?.SendHotbar(contextId, slots);
+    }
+
+    public void SendActionIcons(string contextId, IReadOnlyList<ActionIconDto> actions) {
+        this._wsServer?.SendActionIcons(contextId, actions);
+    }
+
+    public void RefreshSubscribedActions(string? actionType) {
+        this._wsServer?.RefreshSubscribedActions(actionType);
+    }
+
+    public void SendIcons(string contextId, IReadOnlyList<int> iconIds) {
+        this._wsServer?.SendIcons(contextId, iconIds);
+    }
+
+    public void ForgetSentIcons() {
+        this._wsServer?.ForgetSentIcons();
+    }
+
+    public void ReplaceIcons(IReadOnlyList<int> iconIds) {
+        this._wsServer?.ReplaceIcons(iconIds);
+    }
+
+    public bool PushEditableChanges() {
+        return this._wsServer?.PushEditableChanges() ?? false;
+    }
+
+    public void MarkIconsKnown(string contextId, IReadOnlyList<int> iconIds) {
+        this._wsServer?.MarkIconsKnown(contextId, iconIds);
+    }
+
+    public void Prefetch(string? contextId, IReadOnlyList<(string Type, int Id)> actions) {
+        this._wsServer?.Prefetch(contextId, actions);
     }
 
     private static HttpListenerMode GetListenerMode() {

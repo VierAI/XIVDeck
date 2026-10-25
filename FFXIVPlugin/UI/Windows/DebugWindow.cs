@@ -58,12 +58,16 @@ public class DebugWindow : Window {
 
         ImGui.SameLine();
         if (ImGui.Button("Redraw All Icons")) {
+            // drop the game-side PNG cache and what each deck was sent; the deck clears its own cache on "IconCache"
+            // and re-requests everything on screen
+            IconPngCache.Clear();
+            XIVDeckPlugin.Instance.Server.ForgetSentIcons();
             XIVDeckPlugin.Instance.Server.BroadcastMessage(new WSStateUpdateMessage("IconCache"));
         }
 
         if (ImGui.Button("Resend Init Command")) {
             var xivPluginVersion = Assembly.GetExecutingAssembly().GetName().Version!;
-            var packet = new WSInitReplyMessage(xivPluginVersion.GetMajMinBuild(), AuthHelper.Instance.Secret);
+            var packet = new WSInitReplyMessage(xivPluginVersion.GetMajMinBuild(), AuthHelper.Instance.Secret, true);
             XIVDeckPlugin.Instance.Server.BroadcastMessage(packet);
         }
 

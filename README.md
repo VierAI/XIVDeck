@@ -1,3 +1,49 @@
+# XIVDeck (VierAI-fied)
+
+> **Disclaimer:** this is an unofficial fork of XIVDeck. Its changes are AI-generated ("vibe coded"). It is not made, endorsed or supported by the XIVDeck author, so please don't ask them for help with it. Use it at your own risk.
+
+## Official XIVDeck
+
+Links from the original README:
+
+Technical support for release and testing versions of XIVDeck is available in the
+[XIVLauncher & Dalamud Discord][goatplace]'s [XIVDeck help thread][support-thread]. 
+
+[releases]: https://github.com/KazWolfe/XIVDeck/releases
+[goatplace]: https://discord.gg/holdshift
+[support-thread]: https://discord.com/channels/581875019861328007/1019648519226806323
+
+Original source: [KazWolfe/XIVDeck](https://github.com/KazWolfe/XIVDeck)
+
+## What this fork changes
+
+Full list: [CHANGELOG.md](CHANGELOG.md)
+
+- **Stream Deck icons:** pushed and prefetched for every key, cached on both sides, live macro and gearset updates, repaint for Penumbra icon mods.
+- **Fixes:** no double connect, false version warning, icon mod lookups on the game thread.
+- **Performance:** no more 50-80 ms key-check hitch; capped icon cache; icons encoded once.
+- Installs alongside as its own plugin and imports the official settings.
+
+## Installing this fork
+
+Add this custom plugin repository in Dalamud (`/xlsettings` > Experimental > Custom Plugin Repositories), then install it from `/xlplugins`:
+
+`https://raw.githubusercontent.com/VierAI/DalamudPlugins/main/vierai.json`
+
+## For the XIVDeck author
+
+If the original XIVDeck authors would like any of these changes sent back upstream as pull requests, please open an issue on this repository or contact the fork maintainer, and we'll gladly prepare them.
+
+## Licence and credits
+
+This fork keeps the original licence, AGPL-3.0 for the game plugin ([FFXIVPlugin/LICENSE](FFXIVPlugin/LICENSE)) and MPL-2.0 for the Stream Deck plugin ([SDPlugin/LICENSE](SDPlugin/LICENSE)), and all original credits. See [MODIFICATIONS.md](MODIFICATIONS.md) for the list of changed files.
+
+The original README follows unchanged.
+
+---
+
+## Original README
+
 ![XIVDeck Icon](SDPlugin/assets/images/icon@2x.png)
 
 # XIVDeck

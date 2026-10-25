@@ -20,8 +20,23 @@ export abstract class BaseButton {
     // set of event listeners
     protected _sdEventListeners: Map<InteractiveEvent['event'], Function> = new Map<InteractiveEvent['event'], Function>();
 
+    // last image sent for this key, to skip redundant setImage calls (each one is a full image upload to the
+    // Stream Deck app, and they queue behind each other when flipping pages quickly)
+    private _lastImage?: string;
+    private _settingsSeen = false;
+
     protected constructor(context: string) {
         this.context = context;
+    }
+
+    /**
+     * False for the settings that arrive with willAppear (the key just came on screen), true for a later
+     * didReceiveSettings (the user changed the key). Call once per onReceivedSettings.
+     */
+    protected isSettingsUpdate(): boolean {
+        const update = this._settingsSeen;
+        this._settingsSeen = true;
+        return update;
     }
     
     abstract onReceivedSettings(event: DidReceiveSettingsEvent | WillAppearEvent): Promise<void>;
@@ -61,6 +76,9 @@ export abstract class BaseButton {
     }
     
     public setImage(imageData: string, options: { target?: SetterTargets; state?: number }= {}): void {
+        const plain = options.target == null && options.state == null;
+        if (plain && imageData === this._lastImage) return;
+        this._lastImage = plain ? imageData : undefined;
         plugin.sdPluginLink.setImage(imageData, this.context, options);
     }
     

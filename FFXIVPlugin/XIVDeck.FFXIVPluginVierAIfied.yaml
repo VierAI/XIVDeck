@@ -1,0 +1,61 @@
+name: XIVDeck (VierAI-fied)
+author: KazWolfe
+punchline: Turn your Elgato Stream Deck into a hotbar! Unofficial VierAI-fied fork (AI generated code).
+description: |-
+  This plugin allows players to use an Elgato Stream Deck as a virtual utility hot bar. Actions are called directly, meaning there is no need to set up awkward keybinds, custom macros, or any other settings.
+
+  Note that the XIVDeck Stream Deck plugin must also be installed for this plugin to be useful. You can download the Stream Deck plugin from the linked GitHub repository, under the "Releases" section.
+
+  Please report all problems to KazWolfe#2896 in the Dalamud Support server or by opening an Issue on GitHub.
+
+  XIVDeck by KazWolfe - VierAI-fied
+
+  Forked from the official XIVDeck (https://github.com/KazWolfe/XIVDeck).
+
+  AI generated code: unofficial build, not supported by the original authors. Do not report issues from this build upstream.
+
+  Added:
+  - Stream Deck icon cache, push and prefetch
+  - Live macro and gearset icon updates
+  - Keys repaint for Penumbra icon mods
+  - Imports the official XIVDeck settings
+
+  Fixed:
+  - Double connect when Stream Deck settings are saved
+  - False "Stream Deck plugin newer" warning
+  - Icon mod lookups moved to the game thread
+  - 50-80 ms hitch from the key check
+  - Icon cache memory is capped
+repo_url: https://github.com/VierAI/XIVDeck
+icon_url: https://raw.githubusercontent.com/VierAI/XIVDeck/vierai/vierai/icon.png
+tags:
+  - stream deck
+  - ui
+  - integrations
+category_tags:
+  - UI
+accepts_feedback: false
+changelog: |-
+  Changes from XIVDeck:
+  Features
+  - Hotbar keys: slots and icons are pushed to the Stream Deck on connect and whenever a hotbar changes (all 18 hotbars watched)
+  - Other keys (actions, macros, gearsets, classes): visible keys ask for their icons in one batch, and each icon is sent only once per connection
+  - Every XIVDeck key in your Stream Deck profiles is prefetched in small batches on connect (profiles are only read, rescanned every 15 s)
+  - Macro and gearset keys update live when their icon, name or job changes (shared macros, /micon; deleted gearsets reset to the default)
+  - Keys repaint when a Penumbra mod changes an icon
+  - Stream Deck plugin caches icons, paints empty slots transparent, skips re-sending identical images and cancels lookups for keys that scrolled away
+  - Redraw All Icons clears both icon caches
+  - Installs as its own plugin (XIVDeck.FFXIVPluginVierAIfied), imports the official settings on first start and works with the existing Stream Deck plugin
+
+  Fixes
+  - The Stream Deck plugin no longer drops and reopens the connection when its settings are saved without changing host or port (double connect)
+  - False 'Stream Deck plugin newer than game plugin' warning caused by the fork's 4-part version
+  - Icon mod (Penumbra) lookups now run on the game thread
+
+  Performance
+  - The once-a-second macro/gearset key check is spread over frames (about 2 ms per frame), removing a 50-80 ms hitch
+  - The icon cache is capped (1024 icons, least recently used dropped first) and stores each icon once
+  - Icons are converted to PNG once and reused, including for the older HTTP icon lookup
+
+  Other
+  - Own plugin icon and AI-generated code disclosure; Stream Deck plugin package renamed to match

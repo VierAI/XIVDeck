@@ -2,6 +2,7 @@
 import { GameNotRunningError } from "./exceptions/Exceptions";
 import {FFXIVOpcode} from "./MessageBase";
 import {InitOpcode} from "./messages/outbound/InitOpcode";
+import {StateCache} from "./StateCache";
 import AbstractStreamdeckConnector from "@rweich/streamdeck-ts/dist/AbstractStreamdeckConnector";
 import {FFXIVInitReply} from "./GameTypes";
 import {PropertyInspector} from "@rweich/streamdeck-ts";
@@ -40,6 +41,7 @@ export class FFXIVPluginLink {
         // initreply listener goes into constructor because otherwise it gets called *per connect*, which causes
         // a huge mess on many retry attempts
         this.on("initReply", this._onInitReceive.bind(this));
+        StateCache.attach(this);
     }
 
     get baseUrl(): string {
@@ -73,9 +75,12 @@ export class FFXIVPluginLink {
         this._websocket = new WebSocket(`ws://${this.hostname}:${this.port}/ws`);
 
         this._websocket.onopen = () => {
-            const version = this._plugin.info?.plugin?.version || packageInfo.version;
+            const pluginInfo = this._plugin.info["plugin"] as { version?: string } | undefined;
+            const version = pluginInfo?.version || packageInfo.version;
             const isInspector = this._plugin instanceof PropertyInspector;
-            this.send(new InitOpcode(version, (isInspector ? "Inspector" : "Plugin")));
+            const cached = isInspector ? [] : StateCache.cachedIconIds();
+            console.debug(`[XIVDeck] websocket open; init with ${cached.length} cached icon id(s)`);
+            this.send(new InitOpcode(version, (isInspector ? "Inspector" : "Plugin"), cached));
             this.emit("_wsOpened", null);
         };
 
@@ -85,6 +90,8 @@ export class FFXIVPluginLink {
 
     private _onInitReceive(data: FFXIVInitReply) {
         this.apiKey = data.apiKey;
+        // per connection: an older game plugin (no pushCache) gets the upstream HTTP path
+        StateCache.usesPush = data.pushCache === true;
 
         this.emit("_ready", null)
     }
@@ -103,7 +110,7 @@ export class FFXIVPluginLink {
     }
 
     private _onWSClose(event: CloseEvent): void {
-        console.debug("[XIVDeck - FFXIVPluginLink] Connection to WebSocket server lost!");
+        console.debug(`[XIVDeck - FFXIVPluginLink] Connection to WebSocket server lost (code ${event.code})!`);
         this.emit("_wsClosed", {});
         this._websocket = null;
 
@@ -140,6 +147,11 @@ export class FFXIVPluginLink {
     public gracefulClose(): void {
         this._plugin.logMessage("Graceful websocket close requested.");
         this._websocket?.close(1000, "Graceful shutdown/restart of socket.");
+    }
+
+    /** A socket exists (connecting or open); connect() would be a no-op. */
+    public hasSocket(): boolean {
+        return this._websocket != null;
     }
 
     public isReady(): boolean {

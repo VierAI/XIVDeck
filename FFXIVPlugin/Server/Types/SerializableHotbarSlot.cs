@@ -16,7 +16,8 @@ public class SerializableHotbarSlot {
     [JsonProperty("iconId")] public int IconId;
 }
 
-public record MicroHotbarSlot(int HotbarId, int SlotId) {
+public record MicroHotbarSlot(int HotbarId, int SlotId, int IconId) {
     [JsonProperty("hotbarId")] public int HotbarId = HotbarId;
     [JsonProperty("slotId")] public int SlotId = SlotId;
+    [JsonProperty("iconId")] public int IconId = IconId;
 }

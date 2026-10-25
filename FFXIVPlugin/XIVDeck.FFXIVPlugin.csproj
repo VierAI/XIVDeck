@@ -1,11 +1,12 @@
-﻿<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
     <PropertyGroup>
         <Product>XIVDeck Game Plugin</Product>
         <Authors>KazWolfe</Authors>
         <Company>Blacksite Technologies</Company>
-        <Version>0.4.5</Version>
+        <Version>0.4.5.7</Version>
 
-        <AssemblyName>XIVDeck.FFXIVPlugin</AssemblyName>
+        <AssemblyName>XIVDeck.FFXIVPluginVierAIfied</AssemblyName>
+        <RootNamespace>XIVDeck.FFXIVPlugin</RootNamespace>
         <AssemblyVersion>$(Version)</AssemblyVersion>
 
         <Description>A Dalamud plugin that exposes an API and game logic for use with a Stream Deck.</Description>
@@ -68,7 +69,7 @@
     </ItemGroup>
 
     <Target Name="PackagePluginRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
-        <DalamudPackager ProjectDir="$(ProjectDir)" OutputPath="$(OutputPath)" AssemblyName="$(AssemblyName)" MakeZip="true" VersionComponents="3" />
+        <DalamudPackager ProjectDir="$(ProjectDir)" OutputPath="$(OutputPath)" AssemblyName="$(AssemblyName)" MakeZip="true" VersionComponents="4" />
     </Target>
 
     <Target Name="PackagePluginDebug" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">

@@ -10,5 +10,9 @@ public static class DalamudHooks {
         // this should probably be moved, but update macro/gearset states at login
         XIVDeckPlugin.Instance.Server.BroadcastMessage(new WSStateUpdateMessage("GearSet"));
         XIVDeckPlugin.Instance.Server.BroadcastMessage(new WSStateUpdateMessage("Macro"));
+        XIVDeckPlugin.Instance.HotbarWatcher.PublishAll();
+        // every remembered Stream Deck action, not just gearsets/macros: anything that failed to resolve at the
+        // title screen gets its icon now
+        XIVDeckPlugin.Instance.Server.RefreshSubscribedActions(null);
     }
 }

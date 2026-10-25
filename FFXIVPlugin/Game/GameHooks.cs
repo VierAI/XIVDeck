@@ -45,7 +45,15 @@ internal unsafe class GameHooks : IDisposable {
             Injections.PluginLog.Error(ex, "Gearset update notification on hook failed");
         }
 
-        return this.GearsetUpdateHook!.Original(self, ptr, length);
+        var result = this.GearsetUpdateHook!.Original(self, ptr, length);
+
+        try {
+            XIVDeckPlugin.Instance.Server.RefreshSubscribedActions("GearSet");
+        } catch (Exception ex) {
+            Injections.PluginLog.Error(ex, "Gearset icon refresh failed");
+        }
+
+        return result;
     }
 
     private void DetourMacroUpdate(RaptureMacroModule* self, bool needsSave, uint set) {
@@ -58,5 +66,11 @@ internal unsafe class GameHooks : IDisposable {
         }
 
         this.MacroUpdateHook!.Original(self, needsSave, set);
+
+        try {
+            XIVDeckPlugin.Instance.Server.RefreshSubscribedActions("Macro");
+        } catch (Exception ex) {
+            Injections.PluginLog.Error(ex, "Macro icon refresh failed");
+        }
     }
 }

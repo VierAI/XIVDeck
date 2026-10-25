@@ -2,7 +2,6 @@
 using EmbedIO;
 using EmbedIO.Routing;
 using EmbedIO.WebApi;
-using XIVDeck.FFXIVPlugin.Game.Managers;
 using XIVDeck.FFXIVPlugin.Server.Helpers;
 using XIVDeck.FFXIVPlugin.Utils;
 
@@ -15,12 +14,12 @@ public class IconController : WebApiController {
         this.HttpContext.Response.ContentType = "image/png";
         await using var stream = this.HttpContext.OpenResponseStream();
 
-        var icon = IconManager.GetIcon("", iconId, true);
+        var png = await IconPngCache.GetBytesAsync(iconId);
 
-        if (icon == null)
+        if (png == null)
             throw HttpException.NotFound($"Icon {iconId} was not found.");
 
-        await stream.WriteAsync(await icon.GetImage().ConvertToPngAsync());
+        await stream.WriteAsync(png);
     }
 }
 

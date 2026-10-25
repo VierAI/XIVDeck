@@ -1,7 +1,10 @@
-﻿import {BaseButton} from "../BaseButton";
+import {BaseButton} from "../BaseButton";
 import {KeyDownEvent, WillAppearEvent} from "@rweich/streamdeck-events/dist/Events/Received/Plugin";
 import plugin from "../../plugin";
 import {FFXIVApi} from "../../link/ffxivplugin/FFXIVApi";
+import {IconPushMessage} from "../../link/ffxivplugin/GameTypes";
+import {StateCache} from "../../link/ffxivplugin/StateCache";
+import {IconLoader} from "../IconLoader";
 import {DidReceiveSettingsEvent} from "@rweich/streamdeck-events/dist/Events/Received";
 
 export type ClassButtonSettings = {
@@ -9,15 +12,26 @@ export type ClassButtonSettings = {
     className: string
 }
 
+// class icons are a fixed range; no lookup needed
+const classIconId = (classId: number) => 62100 + classId;
+
 export class ClassButton extends BaseButton {
     useGameIcon: boolean = true;
+    private readonly icon: IconLoader;
     
     settings?: ClassButtonSettings;
 
     constructor(event: WillAppearEvent) {
         super(event.context);
+
+        this.icon = new IconLoader(this, {
+            known: () => this.settings?.classId == undefined ? undefined : classIconId(this.settings.classId),
+            fetchIconId: async () => classIconId(this.settings!.classId),
+            remember: () => {}
+        });
         
         this._xivEventListeners.add(plugin.xivPluginLink.on("_ready", this.render.bind(this)));
+        this._xivEventListeners.add(plugin.xivPluginLink.on("icon", this.onIcon.bind(this)));
         
         this._sdEventListeners.set("keyDown", this.onKeyDown.bind(this));
         
@@ -26,7 +40,14 @@ export class ClassButton extends BaseButton {
     
     async onReceivedSettings(event: DidReceiveSettingsEvent | WillAppearEvent) {
         this.settings = event.settings as ClassButtonSettings;
-        this.render();
+        // willAppear: once per connection (pushes keep it fresh, cached keys paint instantly);
+        // settings change: always re-ask
+        const force = this.isSettingsUpdate();
+        this.icon.reset();
+
+        if (this.settings?.classId != undefined) StateCache.requestAction("Class", this.settings.classId, force);
+
+        await this.render();
     }
     
     async onKeyDown(event: KeyDownEvent): Promise<void> {
@@ -36,7 +57,19 @@ export class ClassButton extends BaseButton {
         
         await FFXIVApi.GameClass.triggerClass(this.settings.classId);
     }
+
+    override cleanup() {
+        this.icon.dispose();
+        super.cleanup();
+    }
     
+    private onIcon(message: IconPushMessage): void {
+        if (this.settings?.classId == undefined) return;
+        if (message.iconId === classIconId(this.settings.classId)) {
+            void this.render();
+        }
+    }
+
     async render(): Promise<void> {
         if (!this.useGameIcon) {
             this.setImage("");
@@ -50,8 +83,10 @@ export class ClassButton extends BaseButton {
         if (this.settings?.classId == undefined) {
             return
         }
-        
-        let classInfo = await FFXIVApi.GameClass.getClass(this.settings.classId);
-        this.setImage(await FFXIVApi.getIcon(classInfo.iconId));
+
+        const classId = this.settings.classId;
+        StateCache.putAction("Class", classId, classIconId(classId));
+        StateCache.requestAction("Class", classId);
+        this.icon.paint();
     }
 }

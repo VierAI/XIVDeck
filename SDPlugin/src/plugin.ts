@@ -59,14 +59,22 @@ class XIVDeckPlugin {
         this.sdPluginLink.logMessage(`Received global settings: ${JSON.stringify(event.settings)}`);
 
         let globalSettings = ObjectUtils.deepMerge(DefaultGlobalSettings, (event.settings as GlobalSettings) || {});
-        if (globalSettings.ws.hostname) this.xivPluginLink.hostname = globalSettings.ws.hostname;
-        this.xivPluginLink.port = globalSettings.ws.port;
+        const hostname = globalSettings.ws.hostname || this.xivPluginLink.hostname;
+        const port = globalSettings.ws.port;
+        const changed = hostname !== this.xivPluginLink.hostname || port !== this.xivPluginLink.port;
+        this.xivPluginLink.hostname = hostname;
+        this.xivPluginLink.port = port;
 
         this.sdPluginLink.logMessage(`FINAL PAYLOAD: ${JSON.stringify(globalSettings)}`);
 
-        if (this.xivPluginLink.isReady()) {
-            // will automatically reconnect, so long as the game is still alive.
-            this.xivPluginLink.gracefulClose();
+        if (this.xivPluginLink.hasSocket()) {
+            // Stream Deck sends global settings on every game-launch notification (and plugin start). Only drop the
+            // connection if the target actually changed; reconnecting for nothing made the game re-push everything.
+            if (changed) {
+                this.xivPluginLink.gracefulClose(); // will automatically reconnect, so long as the game is still alive.
+            } else {
+                this.sdPluginLink.logMessage("Websocket target unchanged; keeping the current connection.");
+            }
         } else {
             this.xivPluginLink.connect(true);
         }

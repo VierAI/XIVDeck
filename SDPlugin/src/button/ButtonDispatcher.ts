@@ -10,6 +10,7 @@ import {DidReceiveSettingsEvent} from "@rweich/streamdeck-events/dist/Events/Rec
 import {ClassButton} from "./buttons/ClassButton";
 import {StateMessage} from "../link/ffxivplugin/GameTypes";
 import {FFXIVPluginLink} from "../link/ffxivplugin/FFXIVPluginLink";
+import {StateCache} from "../link/ffxivplugin/StateCache";
 import {VolumeButton} from "./buttons/VolumeButton";
 import {InteractiveEvent} from "../util/SDEvent";
 
@@ -72,6 +73,8 @@ export class ButtonDispatcher {
                 }
                 break;
             case "IconCache":
+                // "Redraw All Icons": the game dropped its PNG cache; drop ours and re-request what's on screen
+                StateCache.clear();
                 for await (let c of this._contextCache.values()) {
                     await c.render()
                 }
@@ -104,7 +107,10 @@ export class ButtonDispatcher {
         // bust the icon cache for test/debug purposes
         // plugin.sdPluginLink.setImage("", event.context);
 
+        const started = performance.now();
         this._constructButton(event);
+        const took = performance.now() - started;
+        if (took > 5) console.debug(`[XIVDeck] willAppear ${event.context} took ${took.toFixed(1)}ms`);
     }
 
     handleReceivedSettings(event: DidReceiveSettingsEvent) {

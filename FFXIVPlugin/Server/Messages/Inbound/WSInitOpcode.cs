@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Dalamud.Interface.ImGuiNotification;
@@ -26,6 +28,9 @@ public class WSInitOpcode : BaseInboundMessage {
     public string Version { get; set; } = default!;
     [JsonProperty("mode")] public PluginMode? Mode { get; set; }
 
+    /// <summary>Icon ids the deck already has images for (sent on reconnect); their PNGs aren't re-sent.</summary>
+    [JsonProperty("cachedIcons")] public List<int>? CachedIcons { get; set; }
+
     public override async Task Process(IWebSocketContext context) {
         // hide all nags
         NagWindow.CloseAllNags();
@@ -44,7 +49,9 @@ public class WSInitOpcode : BaseInboundMessage {
         }
 
         var xivPluginVersion = Assembly.GetExecutingAssembly().GetName().Version!.StripRevision();
-        var reply = new WSInitReplyMessage(xivPluginVersion.GetMajMinBuild(), AuthHelper.Instance.Secret);
+        // fork builds use a 4th (revision) part on both plugins; compare Maj.Min.Build like with like
+        if (sdPluginVersion.Revision >= 0) sdPluginVersion = sdPluginVersion.StripRevision();
+        var reply = new WSInitReplyMessage(xivPluginVersion.GetMajMinBuild(), AuthHelper.Instance.Secret, true);
         await context.SendMessage(reply);
         Injections.PluginLog.Information(
             $"XIVDeck Stream Deck Plugin ({this.Mode}) version {this.Version} has connected!");
@@ -88,6 +95,20 @@ public class WSInitOpcode : BaseInboundMessage {
 
             XIVDeckPlugin.Instance.Configuration.HasLinkedStreamDeckPlugin = true;
             XIVDeckPlugin.Instance.Configuration.Save();
+        }
+
+        var wantsPush = this.Mode is PluginMode.Plugin or PluginMode.Developer;
+        XIVDeckPlugin.Instance.Server.NoteMode(context.Id, wantsPush);
+        if (wantsPush) {
+            // Capped like the icon cache (1024) so a client can't make the server track an unbounded list.
+            var cached = (this.CachedIcons ?? []).Where(id => id > 0).Distinct().Take(1024).ToList();
+            XIVDeckPlugin.Instance.Server.MarkIconsKnown(context.Id, cached);
+            Injections.PluginLog.Debug($"Stream Deck reports {cached.Count} icon(s) already cached");
+            // every hotbar slot + icon, then every non-hotbar key in every Stream Deck profile/page
+            XIVDeckPlugin.Instance.HotbarWatcher.PublishToClient(context.Id);
+            var contextId = context.Id;
+            _ = System.Threading.Tasks.Task.Run(() =>
+                XIVDeckPlugin.Instance.Server.Prefetch(contextId, XIVDeckPlugin.Instance.ProfileScanner.GetActions()));
         }
     }
 }

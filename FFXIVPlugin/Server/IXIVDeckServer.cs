@@ -1,5 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using XIVDeck.FFXIVPlugin.Server.Messages;
+using XIVDeck.FFXIVPlugin.Server.Types;
 
 namespace XIVDeck.FFXIVPlugin.Server; 
 
@@ -17,4 +19,29 @@ public interface IXIVDeckServer : IDisposable {
     /// </remarks>
     /// <param name="message">The base message to send to a connected client.</param>
     public void BroadcastMessage(BaseOutboundMessage message);
+
+    public void NoteMode(string contextId, bool wantsPush);
+
+    public void RememberActions(string contextId, IReadOnlyList<(string Type, int Id)> actions);
+
+    public void BroadcastHotbar(IReadOnlyList<MicroHotbarSlot> slots);
+
+    public void SendHotbar(string contextId, IReadOnlyList<MicroHotbarSlot> slots);
+
+    public void SendActionIcons(string contextId, IReadOnlyList<ActionIconDto> actions);
+
+    public void RefreshSubscribedActions(string? actionType);
+
+    public void SendIcons(string contextId, IReadOnlyList<int> iconIds);
+
+    public void ForgetSentIcons();
+
+    public void ReplaceIcons(IReadOnlyList<int> iconIds);
+
+    /// <returns>true while a frame-budgeted pass is still in progress</returns>
+    public bool PushEditableChanges();
+
+    public void MarkIconsKnown(string contextId, IReadOnlyList<int> iconIds);
+
+    public void Prefetch(string? contextId, IReadOnlyList<(string Type, int Id)> actions);
 }

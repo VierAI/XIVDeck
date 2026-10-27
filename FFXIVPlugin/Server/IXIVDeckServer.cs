@@ -24,6 +24,9 @@ public interface IXIVDeckServer : IDisposable {
 
     public void RememberActions(string contextId, IReadOnlyList<(string Type, int Id)> actions);
 
+    /// <summary>True when at least one Stream Deck websocket client is connected. Cheap; safe to call every frame.</summary>
+    public bool HasClients { get; }
+
     public void BroadcastHotbar(IReadOnlyList<MicroHotbarSlot> slots);
 
     public void SendHotbar(string contextId, IReadOnlyList<MicroHotbarSlot> slots);

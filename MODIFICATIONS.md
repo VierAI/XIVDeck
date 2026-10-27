@@ -2,7 +2,7 @@
 
 This repository is a modified version of XIVDeck (https://github.com/KazWolfe/XIVDeck), distributed under the AGPL-3.0 (FFXIVPlugin/LICENSE) and the MPL-2.0 (SDPlugin/LICENSE).
 
-It was modified by VierAI between 2026-10-18 and 2026-10-24. The changes are AI generated code and are not supported by the original authors. This notice is provided for section 5(a) of the AGPL-3.0 and section 3 of the MPL-2.0.
+It was modified by VierAI between 2026-10-18 and 2026-10-26. The changes are AI generated code and are not supported by the original authors. This notice is provided for section 5(a) of the AGPL-3.0 and section 3 of the MPL-2.0.
 
 Files changed relative to upstream commit 060187b (the `upstream-pin` branch); the full history of every change is in this repository's git log:
 
@@ -10,7 +10,7 @@ Files changed relative to upstream commit 060187b (the `upstream-pin` branch); t
 - FFXIVPlugin/Game/GameHooks.cs (changed)
 - FFXIVPlugin/Game/Managers/IconManager.cs (changed)
 - FFXIVPlugin/Game/Watchers/EditableActionWatcher.cs (added)
-- FFXIVPlugin/Game/Watchers/HotbarWatcher.cs (changed)
+- FFXIVPlugin/Game/Watchers/HotbarWatcher.cs (changed; 0.4.5.8: hotbar scan skipped with no Stream Deck connected, at most every 100 ms, no per-frame list, AI generated code)
 - FFXIVPlugin/Game/Watchers/IconModWatcher.cs (added)
 - FFXIVPlugin/Server/ActionIcons.cs (added)
 - FFXIVPlugin/Server/Controllers/IconController.cs (changed)
@@ -47,4 +47,4 @@ Files changed relative to upstream commit 060187b (the `upstream-pin` branch); t
 - SDPlugin/src/link/ffxivplugin/messages/outbound/InitOpcode.ts (changed)
 - SDPlugin/src/link/ffxivplugin/messages/outbound/SubscribeOpcode.ts (added)
 - SDPlugin/src/plugin.ts (changed)
-- vierai/icon.png (added)
+- TODO.md (added)

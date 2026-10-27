@@ -107,6 +107,8 @@ public class XIVDeckWebServer : IXIVDeckServer {
         this._wsServer?.RememberActions(contextId, actions);
     }
 
+    public bool HasClients => this._wsServer?.HasClients ?? false;
+
     public void BroadcastHotbar(IReadOnlyList<MicroHotbarSlot> slots) {
         this._wsServer?.BroadcastHotbar(slots);
     }

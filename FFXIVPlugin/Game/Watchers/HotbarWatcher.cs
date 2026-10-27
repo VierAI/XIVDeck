@@ -14,7 +14,11 @@ public class HotbarWatcher : IDisposable {
     private const int HotbarCount = 18;
     private const int SlotCount = 16;
 
+    // A Stream Deck does not need frame-exact hotbar updates; scan at most every 100 ms.
+    private const long ScanIntervalMs = 100;
+
     private readonly HotbarSlot[,] _hotbarCache = new HotbarSlot[HotbarCount, SlotCount];
+    private long _nextScanAt;
 
     public HotbarWatcher() {
         Injections.Framework.Update += this.OnGameUpdate;
@@ -91,13 +95,23 @@ public class HotbarWatcher : IDisposable {
     }
 
     private unsafe void OnGameUpdate(IFramework framework) {
+        // Nobody to tell: skip the 288-slot scan. A deck that connects later gets a full
+        // CaptureSnapshot (PublishToClient), which also re-seeds the diff cache.
+        var server = XIVDeckPlugin.Instance.Server;
+        if (server == null || !server.HasClients) return;
+
+        var now = Environment.TickCount64;
+        if (now < this._nextScanAt) return;
+        this._nextScanAt = now + ScanIntervalMs;
+
         var ui = Framework.Instance()->GetUIModule();
         if (ui == null) return;
 
         var hotbarModule = ui->GetRaptureHotbarModule();
         if (hotbarModule == null) return;
 
-        List<MicroHotbarSlot> updatedSlots = new();
+        // Allocated only when a slot actually changed (most scans find nothing).
+        List<MicroHotbarSlot>? updatedSlots = null;
 
         for (var hotbarId = 0; hotbarId < HotbarCount; hotbarId++) {
             ref var hotbar = ref hotbarModule->Hotbars[hotbarId];
@@ -119,11 +133,11 @@ public class HotbarWatcher : IDisposable {
                 this.Remember(hotbarId, slotId, gameSlot, iconId, calcApparentType, calcApparentId);
 
                 if (changed)
-                    updatedSlots.Add(new MicroHotbarSlot(hotbarId, slotId, iconId));
+                    (updatedSlots ??= new List<MicroHotbarSlot>()).Add(new MicroHotbarSlot(hotbarId, slotId, iconId));
             }
         }
 
-        if (updatedSlots.Count > 0) {
+        if (updatedSlots != null) {
             Injections.PluginLog.Debug($"Detected a change to {updatedSlots.Count} hotbar slot(s)");
             XIVDeckPlugin.Instance.Server.BroadcastHotbar(updatedSlots);
         }

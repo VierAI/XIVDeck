@@ -24,12 +24,6 @@ Full list: [CHANGELOG.md](CHANGELOG.md)
 - **Performance:** no more 50-80 ms key-check hitch; capped icon cache; icons encoded once.
 - Installs alongside as its own plugin and imports the official settings.
 
-## Installing this fork
-
-Add this custom plugin repository in Dalamud (`/xlsettings` > Experimental > Custom Plugin Repositories), then install it from `/xlplugins`:
-
-`https://raw.githubusercontent.com/VierAI/DalamudPlugins/main/vierai.json`
-
 ## For the XIVDeck author
 
 If the original XIVDeck authors would like any of these changes sent back upstream as pull requests, please open an issue on this repository or contact the fork maintainer, and we'll gladly prepare them.

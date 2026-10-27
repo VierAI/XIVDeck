@@ -81,6 +81,9 @@ public class XIVDeckWSServer : WebSocketModule {
         }
     }
 
+    // Sessions are added on connect and removed on disconnect, so this is a lock-free connected-client check.
+    internal bool HasClients => !this._sessions.IsEmpty;
+
     internal void BroadcastHotbar(IReadOnlyList<MicroHotbarSlot> slots) {
         var copy = slots as MicroHotbarSlot[] ?? slots.ToArray();
         _ = Task.Run(() => this.DeliverHotbarAsync(null, copy));

@@ -24,6 +24,7 @@ Cumulative list of changes from upstream XIVDeck. Updated as changes land.
 - The once-a-second macro/gearset key check is spread over frames (about 2 ms per frame), removing a 50-80 ms hitch
 - The icon cache is capped (1024 icons, least recently used dropped first) and stores each icon once
 - Icons are converted to PNG once and reused, including for the older HTTP icon lookup
+- Hotbar watcher (0.4.5.8): no hotbar scan at all while no Stream Deck is connected; with one connected it scans at most every 100 ms instead of every frame and no longer allocates a list per scan (a deck that connects gets the full hotbar snapshot as before)
 
 ## Other
 
